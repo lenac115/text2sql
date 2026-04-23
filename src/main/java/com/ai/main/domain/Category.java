@@ -25,5 +25,12 @@ public class Category {
     private String name;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
-    private List<Product> products  = new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
+
+    public void addProduct(Product product) {
+        if (this.products == null) {
+            this.products = new ArrayList<>();
+        }
+        this.products.add(product);
+    }
 }

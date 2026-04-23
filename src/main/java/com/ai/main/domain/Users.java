@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class Users {
     private String name;
 
     @NotNull
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "users")
     private List<Orders> ordersList = new ArrayList<>();

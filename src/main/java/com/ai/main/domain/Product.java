@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class Product {
     private int stock;
 
     @NotNull
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -44,4 +44,11 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderItems> orderItemsList = new ArrayList<>();
+
+    public void addOrderItems(OrderItems orderItems) {
+        if(this.orderItemsList == null) {
+            this.orderItemsList = new ArrayList<>();
+        }
+        this.orderItemsList.add(orderItems);
+    }
 }

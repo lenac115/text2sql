@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(indexes = {
-        @Index(name = "idx_orders_created_at", columnList = "created_at"),
-        @Index(name = "idx_orders_status_created_at", columnList = "order_status, created_at"),
+        @Index(name = "idx_orders_ordered_at", columnList = "ordered_at"),
+        @Index(name = "idx_orders_status_ordered_at", columnList = "order_status, ordered_at"),
         @Index(name = "idx_orders_user_id", columnList = "users_id")
 })
 public class Orders {
@@ -35,7 +35,7 @@ public class Orders {
     private OrderStatus orderStatus;
 
     @NotNull
-    private Instant createdAt;
+    private LocalDateTime orderedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id")
@@ -49,5 +49,13 @@ public class Orders {
         COMPLETED,
         CANCELLED,
         REFUNDED
+    }
+
+    public void addOrderItem(OrderItems item) {
+        if(this.orderItemsList == null) {
+            this.orderItemsList = new ArrayList<>();
+        }
+        this.orderItemsList.add(item);
+        this.totalAmount += item.getSubtotal();
     }
 }
