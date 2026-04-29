@@ -33,4 +33,8 @@ public class Category {
         }
         this.products.add(product);
     }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
 }

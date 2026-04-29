@@ -152,9 +152,11 @@ public class DataInitializer implements CommandLineRunner {
 
     private Orders.@NotNull OrderStatus randomStatus(Random random) {
         int r = random.nextInt(100);
-        if (r < 90) return Orders.OrderStatus.COMPLETED;
-        if (r < 95) return Orders.OrderStatus.CANCELLED;
-        if (r < 98) return Orders.OrderStatus.PENDING;
+        if (r < 40) return Orders.OrderStatus.DELIVERED;
+        if (r < 65) return Orders.OrderStatus.PAID;
+        if (r < 80) return Orders.OrderStatus.SHIPPING;
+        if (r < 90) return Orders.OrderStatus.PAYMENT_PENDING;
+        if (r < 96) return Orders.OrderStatus.CANCELLED;
         return Orders.OrderStatus.REFUNDED;
     }
 
