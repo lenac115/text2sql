@@ -1,7 +1,7 @@
 package com.ai.main.service;
 
 import com.ai.main.domain.*;
-import com.ai.main.dto.*;
+import com.ai.main.dto.order.*;
 import com.ai.main.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,9 @@
 package com.ai.main.controller;
 
 import com.ai.main.domain.Orders;
-import com.ai.main.dto.OrderCreateRequest;
-import com.ai.main.dto.OrderResponse;
-import com.ai.main.dto.UpdateOrderStatusRequest;
+import com.ai.main.dto.order.OrderCreateRequest;
+import com.ai.main.dto.order.OrderResponse;
+import com.ai.main.dto.order.UpdateOrderStatusRequest;
 import com.ai.main.service.OrderService;
 import com.ai.main.service.SseEmitterService;
 import jakarta.validation.Valid;

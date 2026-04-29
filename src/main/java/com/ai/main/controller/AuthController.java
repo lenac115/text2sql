@@ -1,9 +1,9 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.AuthResponse;
-import com.ai.main.dto.LoginRequest;
-import com.ai.main.dto.RefreshRequest;
-import com.ai.main.dto.RegisterRequest;
+import com.ai.main.dto.auth.AuthResponse;
+import com.ai.main.dto.auth.LoginRequest;
+import com.ai.main.dto.auth.RefreshRequest;
+import com.ai.main.dto.auth.RegisterRequest;
 import com.ai.main.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

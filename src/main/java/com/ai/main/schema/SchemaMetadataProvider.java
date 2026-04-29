@@ -1,8 +1,8 @@
 package com.ai.main.schema;
 
-import com.ai.main.dto.ColumnInfo;
-import com.ai.main.dto.FkInfo;
-import com.ai.main.dto.IndexInfo;
+import com.ai.main.dto.query.ColumnInfo;
+import com.ai.main.dto.query.FkInfo;
+import com.ai.main.dto.query.IndexInfo;
 import jakarta.annotation.PostConstruct;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

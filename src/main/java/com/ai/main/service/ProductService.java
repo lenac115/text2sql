@@ -2,9 +2,9 @@ package com.ai.main.service;
 
 import com.ai.main.domain.Category;
 import com.ai.main.domain.Product;
-import com.ai.main.dto.ProductCreateRequest;
-import com.ai.main.dto.ProductResponse;
-import com.ai.main.dto.ProductUpdateRequest;
+import com.ai.main.dto.product.ProductCreateRequest;
+import com.ai.main.dto.product.ProductResponse;
+import com.ai.main.dto.product.ProductUpdateRequest;
 import com.ai.main.repository.CategoryRepository;
 import com.ai.main.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;

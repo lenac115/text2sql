@@ -1,7 +1,7 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.PaymentRequest;
-import com.ai.main.dto.PaymentResponse;
+import com.ai.main.dto.payment.PaymentRequest;
+import com.ai.main.dto.payment.PaymentResponse;
 import com.ai.main.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -2,9 +2,9 @@ package com.ai.main.service;
 
 import com.ai.main.domain.Orders;
 import com.ai.main.domain.Payment;
-import com.ai.main.dto.OrderStatusEvent;
-import com.ai.main.dto.PaymentRequest;
-import com.ai.main.dto.PaymentResponse;
+import com.ai.main.dto.order.OrderStatusEvent;
+import com.ai.main.dto.payment.PaymentRequest;
+import com.ai.main.dto.payment.PaymentResponse;
 import com.ai.main.repository.OrdersRepository;
 import com.ai.main.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;

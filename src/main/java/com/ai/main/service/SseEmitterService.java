@@ -1,6 +1,6 @@
 package com.ai.main.service;
 
-import com.ai.main.dto.OrderStatusEvent;
+import com.ai.main.dto.order.OrderStatusEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

@@ -1,7 +1,7 @@
 package com.ai.main.controller;
 
 import com.ai.main.service.QueryService;
-import com.ai.main.dto.*;
+import com.ai.main.dto.query.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

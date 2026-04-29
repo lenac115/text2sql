@@ -1,9 +1,9 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.AddressRequest;
-import com.ai.main.dto.PasswordUpdateRequest;
-import com.ai.main.dto.UserProfileResponse;
-import com.ai.main.dto.UserUpdateRequest;
+import com.ai.main.dto.address.AddressRequest;
+import com.ai.main.dto.user.PasswordUpdateRequest;
+import com.ai.main.dto.user.UserProfileResponse;
+import com.ai.main.dto.user.UserUpdateRequest;
 import com.ai.main.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

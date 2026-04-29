@@ -1,8 +1,8 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.ProductCreateRequest;
-import com.ai.main.dto.ProductResponse;
-import com.ai.main.dto.ProductUpdateRequest;
+import com.ai.main.dto.product.ProductCreateRequest;
+import com.ai.main.dto.product.ProductResponse;
+import com.ai.main.dto.product.ProductUpdateRequest;
 import com.ai.main.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

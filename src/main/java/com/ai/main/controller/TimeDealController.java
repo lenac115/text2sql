@@ -1,6 +1,7 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.*;
+import com.ai.main.dto.order.OrderResponse;
+import com.ai.main.dto.timedeal.*;
 import com.ai.main.service.TimeDealService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

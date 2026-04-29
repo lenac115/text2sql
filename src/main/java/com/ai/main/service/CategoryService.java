@@ -1,8 +1,8 @@
 package com.ai.main.service;
 
 import com.ai.main.domain.Category;
-import com.ai.main.dto.CategoryCreateRequest;
-import com.ai.main.dto.CategoryResponse;
+import com.ai.main.dto.category.CategoryCreateRequest;
+import com.ai.main.dto.category.CategoryResponse;
 import com.ai.main.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

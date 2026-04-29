@@ -1,6 +1,6 @@
 package com.ai.main.agent;
 
-import com.ai.main.dto.ColumnRowData;
+import com.ai.main.dto.query.ColumnRowData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.ai.main.agent;
 
-import com.ai.main.dto.SqlValidationResult;
+import com.ai.main.dto.query.SqlValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

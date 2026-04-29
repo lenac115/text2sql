@@ -1,8 +1,8 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.CouponCreateRequest;
-import com.ai.main.dto.CouponIssueRequest;
-import com.ai.main.dto.UserCouponResponse;
+import com.ai.main.dto.coupon.CouponCreateRequest;
+import com.ai.main.dto.coupon.CouponIssueRequest;
+import com.ai.main.dto.coupon.UserCouponResponse;
 import com.ai.main.service.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -3,7 +3,7 @@ package com.ai.main.service;
 import com.ai.main.domain.CartItem;
 import com.ai.main.domain.Product;
 import com.ai.main.domain.Users;
-import com.ai.main.dto.*;
+import com.ai.main.dto.cart.*;
 import com.ai.main.repository.CartItemRepository;
 import com.ai.main.repository.ProductRepository;
 import com.ai.main.repository.UsersRepository;

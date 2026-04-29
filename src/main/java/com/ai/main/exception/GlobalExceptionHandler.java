@@ -1,6 +1,6 @@
 package com.ai.main.exception;
 
-import com.ai.main.dto.ErrorResponse;
+import com.ai.main.dto.common.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.CategoryCreateRequest;
-import com.ai.main.dto.CategoryResponse;
+import com.ai.main.dto.category.CategoryCreateRequest;
+import com.ai.main.dto.category.CategoryResponse;
 import com.ai.main.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,8 @@ package com.ai.main.service;
 
 import com.ai.main.config.RedisConfig;
 import com.ai.main.domain.*;
-import com.ai.main.dto.*;
+import com.ai.main.dto.order.OrderResponse;
+import com.ai.main.dto.timedeal.*;
 import com.ai.main.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,9 @@
 package com.ai.main.service;
 
 import com.ai.main.domain.Users;
-import com.ai.main.dto.*;;
+import com.ai.main.dto.address.AddressRequest;
+import com.ai.main.dto.auth.*;
+import com.ai.main.dto.user.*;
 import com.ai.main.repository.UsersRepository;
 import com.ai.main.security.JwtProvider;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.ai.main.controller;
 
-import com.ai.main.dto.*;
+import com.ai.main.dto.cart.*;
 import com.ai.main.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

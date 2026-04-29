@@ -3,7 +3,7 @@ package com.ai.main.service;
 import com.ai.main.agent.SqlExecutor;
 import com.ai.main.agent.SqlGeneratorAgent;
 import com.ai.main.agent.SqlValidator;
-import com.ai.main.dto.*;
+import com.ai.main.dto.query.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
