@@ -37,7 +37,7 @@ public class SqlValidator {
                         row.get("table"), type, estimatedRows, extra);
 
 
-                // 풀 테이블 스캔 + 대량 행 → 차단
+                // 풀 테이블 스캔 + 대량 행 → 차단 (재시도 가능: 인덱스 활용 SQL 재생성 유도)
                 if ("ALL".equals(type) && estimatedRows > 30000) {
                     log.warn("차단됨! 테이블: {}, type: {}, rows: {}",
                             row.get("table"), type, estimatedRows);
@@ -46,12 +46,12 @@ public class SqlValidator {
                             "table", row.get("table"),
                             "estimatedRows", estimatedRows
                     );
-                    return new SqlValidationResult(
-                            false,
+                    return SqlValidationResult.blocked(
                             "QUERY_BLOCKED",
                             "풀 테이블 스캔이 감지되어 실행하지 않았습니다. "
                                     + "예상 스캔 행 수: " + estimatedRows,
-                            detail
+                            detail,
+                            true
                     );
                 }
 
@@ -74,10 +74,12 @@ public class SqlValidator {
             return SqlValidationResult.passed();
 
         } catch (Exception e) {
+            // 문법 오류로 EXPLAIN 실패 → 재시도 가능
             return SqlValidationResult.blocked(
                     "EXPLAIN_FAILED",
                     "실행계획 분석에 실패했습니다: " + e.getMessage(),
-                    null
+                    null,
+                    true
             );
         }
     }
@@ -93,20 +95,23 @@ public class SqlValidator {
 
         for (String keyword : BLOCKED_KEYWORDS) {
             if (upperSql.startsWith(keyword)) {
+                // 데이터 변경 의도가 있는 SQL → 치명적, 재시도 금지
                 return SqlValidationResult.blocked(
                         "DANGEROUS_QUERY",
                         "데이터 변경 쿼리는 실행할 수 없습니다.",
-                        keyword
+                        Map.of("detectedKeyword", keyword),
+                        false
                 );
             }
         }
 
-        // SELECT로 시작하지 않으면 차단
+        // SELECT로 시작하지 않으면 차단 (LLM이 WITH/CTE 등을 생성한 경우 — 재시도로 수정 가능)
         if (!upperSql.startsWith("SELECT")) {
             return SqlValidationResult.blocked(
                     "INVALID_QUERY",
                     "SELECT 문만 실행할 수 있습니다.",
-                    null
+                    null,
+                    true
             );
         }
 

@@ -1,27 +1,24 @@
 package com.ai.main.dto.query;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public record SqlValidationResult (
         boolean allowed,
+        boolean retryable,
         String code,
         String message,
         Map<String, Object> detail
 ) {
 
-    // 차단
-    public static SqlValidationResult blocked(String code, String message, String keyword) {
-        Map<String, Object> detail = new HashMap<>();
-        if (keyword != null) detail.put("detectedKeyword", keyword);
-        return new SqlValidationResult(false, code, message, detail);
+    public static SqlValidationResult blocked(String code, String message, Map<String, Object> detail, boolean retryable) {
+        return new SqlValidationResult(false, retryable, code, message, detail);
     }
 
     public static SqlValidationResult passed() {
-        return new SqlValidationResult(true, null, null, null);
+        return new SqlValidationResult(true, false, null, null, null);
     }
 
     public static SqlValidationResult warning(String message) {
-        return new SqlValidationResult(true, null, message, null);
+        return new SqlValidationResult(true, false, null, message, null);
     }
 }

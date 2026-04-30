@@ -40,6 +40,40 @@ public class SqlGeneratorAgent {
         return extractSql(response);
     }
 
+    public String regenerateSql(String userQuestion, String previousSql, String failureReason) {
+        String systemPrompt = buildSystemPrompt();
+
+        String retryUserPrompt = """
+                이전에 생성한 SQL이 검증 단계에서 거부되었다. 거부 사유를 반영하여 새로운 SQL을 생성하라.
+
+                [원본 질문]
+                %s
+
+                [이전 SQL]
+                %s
+
+                [거부 사유]
+                %s
+
+                지침:
+                - 풀 테이블 스캔이 문제라면 인덱스가 있는 컬럼으로 필터를 좁히거나 드라이빙 테이블을 변경하라.
+                - 문법 오류라면 스키마에 존재하는 컬럼/테이블만 사용하여 재작성하라.
+                - SELECT가 아니면 SELECT 문으로 변환하라.
+                """.formatted(userQuestion, previousSql, failureReason);
+
+        log.info("=== Retry Prompt === {}", retryUserPrompt);
+
+        String response = chatClient.prompt()
+                .system(systemPrompt)
+                .user(retryUserPrompt)
+                .call()
+                .content();
+
+        log.info("=== LLM Retry Response === {}", response);
+
+        return extractSql(response);
+    }
+
     public String summarize(String question, List<Map<String, Object>> rows) {
         String resultText = rows.toString();
 
