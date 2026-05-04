@@ -38,6 +38,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 불필요
                         .requestMatchers("/v1/auth/**").permitAll()
+                        // OpenAPI / Swagger UI
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         // 상품/카테고리/타임딜 조회는 비회원도 가능
                         .requestMatchers(HttpMethod.GET,
                                 "/v1/products/**",

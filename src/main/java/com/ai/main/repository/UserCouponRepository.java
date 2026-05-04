@@ -17,4 +17,6 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
 
     @Query("SELECT uc FROM UserCoupon uc JOIN FETCH uc.coupon WHERE uc.user.email = :email")
     List<UserCoupon> findByUserEmail(@Param("email") String email);
+
+    boolean existsByUserIdAndCouponId(Long userId, Long couponId);
 }

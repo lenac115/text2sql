@@ -89,6 +89,13 @@ public class Orders {
         if (this.orderItemsList == null) {
             this.orderItemsList = new ArrayList<>();
         }
+        for (OrderItems orderItem : this.orderItemsList) {
+            if (orderItem.getProduct().getId().equals(item.getProduct().getId())) {
+                orderItem.updateItemsForOrderCreated(item);
+                this.totalAmount += item.getSubtotal();
+                return;
+            }
+        }
         this.orderItemsList.add(item);
         this.totalAmount += item.getSubtotal();
     }

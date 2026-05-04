@@ -43,9 +43,6 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
 
-        // Category에 update 메서드가 없으므로 직접 수정을 위해 새 엔티티 방식 대신
-        // 간단히 처리 — Category에 name setter 추가 필요
-        // 여기서는 JPQL update나 새 save를 쓰지 않고 도메인 메서드 추가
         category.updateName(request.name());
         return new CategoryResponse(category.getId(), category.getName(),
                 category.getProducts() != null ? category.getProducts().size() : 0);

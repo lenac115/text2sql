@@ -42,4 +42,10 @@ public class OrderItems {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+
+    public void updateItemsForOrderCreated(OrderItems orderItems) {
+        this.quantity += orderItems.getQuantity();
+        this.subtotal += orderItems.getSubtotal();
+    }
 }

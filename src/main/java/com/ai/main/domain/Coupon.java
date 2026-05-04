@@ -35,6 +35,9 @@ public class Coupon {
     private int totalQuantity;      // 0 = 무제한
     private int issuedQuantity;
 
+    @Version
+    private Long version;
+
     @NotNull
     private LocalDateTime expiresAt;
 

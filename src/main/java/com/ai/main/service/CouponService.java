@@ -27,6 +27,14 @@ public class CouponService {
 
     @Transactional
     public void createCoupon(CouponCreateRequest request) {
+        if (request.discountType() == Coupon.DiscountType.PERCENTAGE
+                && request.discountValue() > 100) {
+            throw new IllegalArgumentException("정률 할인은 1~100% 사이여야 합니다.");
+        }
+        if (!request.expiresAt().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("만료 시각은 현재 시각 이후여야 합니다.");
+        }
+
         Coupon coupon = Coupon.builder()
                 .code(request.code())
                 .name(request.name())
@@ -50,7 +58,11 @@ public class CouponService {
         Users user = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
-        coupon.issue(); // 발급 가능 여부 확인 + issuedQuantity 증가
+        if (userCouponRepository.existsByUserIdAndCouponId(user.getId(), coupon.getId())) {
+            throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
+        }
+
+        coupon.issue();
 
         UserCoupon userCoupon = UserCoupon.builder()
                 .user(user)

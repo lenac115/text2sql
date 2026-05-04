@@ -41,22 +41,18 @@ public class SchemaMetadataProvider {
     }
 
     private String buildPromptText(List<ColumnInfo> columns, List<IndexInfo> indexes, List<FkInfo> foreignKeys) {
-
         StringBuilder sb = new StringBuilder();
         sb.append("아래는 MySQL 데이터베이스의 스키마 정보입니다.\n\n");
 
-        // 테이블별로 그룹핑
         Map<String, List<ColumnInfo>> tableColumns = columns.stream()
                 .collect(Collectors.groupingBy(ColumnInfo::tableName));
 
         Map<String, List<IndexInfo>> tableIndexes = indexes.stream()
                 .collect(Collectors.groupingBy(IndexInfo::tableName));
 
-        // 테이블 이름으로 for문
         for (String tableName : tableColumns.keySet()) {
             sb.append("테이블: ").append(tableName).append("\n");
 
-            // 컬럼 목록
             sb.append("컬럼:\n");
             for (ColumnInfo col : tableColumns.get(tableName)) {
                 sb.append("  - ").append(col.columnName())
@@ -68,14 +64,12 @@ public class SchemaMetadataProvider {
                 sb.append("\n");
             }
 
-            // 인덱스 목록
             List<IndexInfo> idxList = tableIndexes.getOrDefault(tableName, List.of());
             if (!idxList.isEmpty()) {
-                // 같은 인덱스명의 컬럼을 묶어서 표시
                 Map<String, List<String>> grouped = idxList.stream()
                         .collect(Collectors.groupingBy(
                                 IndexInfo::indexName,
-                                LinkedHashMap::new,  // 순서 유지
+                                LinkedHashMap::new,
                                 Collectors.mapping(IndexInfo::columnName, Collectors.toList())
                         ));
 
@@ -89,7 +83,6 @@ public class SchemaMetadataProvider {
             sb.append("\n");
         }
 
-        // FK 관계
         if (!foreignKeys.isEmpty()) {
             sb.append("외래키 관계:\n");
             for (FkInfo fk : foreignKeys) {

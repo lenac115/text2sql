@@ -40,6 +40,7 @@ public class UserService {
                 .password(passwordEncoder.encode(request.password()))
                 .name(request.name())
                 .createdAt(LocalDateTime.now())
+                .role(Users.Role.USER)
                 .build();
 
         usersRepository.save(user);
@@ -82,6 +83,9 @@ public class UserService {
     public void logout(Authentication authentication) {
         String email = authentication.getName();
         redisTemplate.delete(REFRESH_KEY_PREFIX + email);
+        long expSeconds = jwtProvider.getExpFromToken(authentication);
+        redisTemplate.opsForValue()
+                .set("blacklist:" + authentication.getCredentials(), "1", Duration.ofSeconds(expSeconds));
     }
 
     @Transactional(readOnly = true)
@@ -108,14 +112,15 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(String email, PasswordUpdateRequest request) {
-        Users user = usersRepository.findByEmail(email)
+    public void updatePassword(Authentication authentication, PasswordUpdateRequest request) {
+        Users user = usersRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다."));
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new BadCredentialsException("현재 비밀번호가 올바르지 않습니다.");
         }
         user.updatePassword(passwordEncoder.encode(request.newPassword()));
+        this.logout(authentication);
     }
 
     private AuthResponse issueTokens(String email, String role, String name) {

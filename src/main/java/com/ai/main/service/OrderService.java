@@ -119,10 +119,6 @@ public class OrderService {
                         Orders.OrderStatus.CANCELLED.name(), LocalDateTime.now()));
     }
 
-    /**
-     * 관리자 또는 내부 시스템에서 주문 상태를 변경합니다.
-     * 상태 변경 시 해당 유저에게 SSE 이벤트를 전송합니다.
-     */
     @Transactional
     public OrderResponse updateStatus(Long orderId, Orders.OrderStatus newStatus) {
         Orders order = ordersRepository.findByIdWithItems(orderId)

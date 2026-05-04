@@ -22,20 +22,16 @@ public class SqlValidator {
     private SqlValidationResult validateExplainPlan(String sql) {
         try {
             String explainSql = "EXPLAIN " + sql;
-            log.info("=== EXPLAIN SQL ===\n{}", explainSql);
-
             List<Map<String, Object>> explainResults = jdbcTemplate.queryForList(explainSql);
-            log.info("=== EXPLAIN Results ===\n{}", explainResults);
-
+            log.debug("EXPLAIN {} -> {}", explainSql, explainResults);
 
             for (Map<String, Object> row : explainResults) {
                 String type = (String) row.get("type");
                 Long estimatedRows = ((Number) row.get("rows")).longValue();
                 String extra = (String) row.get("Extra");
 
-                log.info("Table: {}, type: {}, rows: {}, Extra: {}",
+                log.debug("Table: {}, type: {}, rows: {}, Extra: {}",
                         row.get("table"), type, estimatedRows, extra);
-
 
                 // 풀 테이블 스캔 + 대량 행 → 차단 (재시도 가능: 인덱스 활용 SQL 재생성 유도)
                 if ("ALL".equals(type) && estimatedRows > 30000) {
@@ -90,7 +86,6 @@ public class SqlValidator {
     );
 
     public SqlValidationResult validate(String sql) {
-        // 1단계: 위험 키워드 검사
         String upperSql = sql.trim().toUpperCase();
 
         for (String keyword : BLOCKED_KEYWORDS) {
@@ -105,7 +100,7 @@ public class SqlValidator {
             }
         }
 
-        // SELECT로 시작하지 않으면 차단 (LLM이 WITH/CTE 등을 생성한 경우 — 재시도로 수정 가능)
+        // SELECT 외(WITH/CTE 등)는 재시도 유도
         if (!upperSql.startsWith("SELECT")) {
             return SqlValidationResult.blocked(
                     "INVALID_QUERY",
@@ -115,7 +110,6 @@ public class SqlValidator {
             );
         }
 
-        // 2단계 : 실행계획 검증
         return validateExplainPlan(sql);
     }
 }

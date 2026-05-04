@@ -17,7 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByOrderIdWithOrder(@Param("orderId") Long orderId);
 
     @Query("SELECT p FROM Payment p JOIN FETCH p.orders o JOIN FETCH o.users " +
-           "WHERE p.status = com.ai.main.domain.Payment$PaymentStatus.PENDING " +
+           "WHERE p.status = com.ai.main.domain.Payment.PaymentStatus.PENDING " +
            "AND p.requestedAt < :threshold")
     List<Payment> findStaleRequests(@Param("threshold") LocalDateTime threshold);
 }

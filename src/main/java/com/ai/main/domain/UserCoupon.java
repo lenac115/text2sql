@@ -28,6 +28,9 @@ public class UserCoupon {
     @Builder.Default
     private boolean used = false;
 
+    @Version
+    private Long version;
+
     private LocalDateTime usedAt;
     private Long orderId;
 

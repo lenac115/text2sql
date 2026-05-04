@@ -73,7 +73,6 @@ public class RedisConfig {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(Map.of(
-                        // 핫딜 활성/예정 목록은 트래픽이 매우 높으므로 짧은 TTL로 적극 캐싱
                         CACHE_ACTIVE_DEALS,   defaultConfig.entryTtl(Duration.ofSeconds(10)),
                         CACHE_UPCOMING_DEALS, defaultConfig.entryTtl(Duration.ofSeconds(30))
                 ))

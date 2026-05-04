@@ -7,24 +7,22 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Component
 public class SqlExecutor {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final Pattern LIMIT_PATTERN = Pattern.compile("\\bLIMIT\\b", Pattern.CASE_INSENSITIVE);
 
     @Autowired
     public SqlExecutor(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     public ColumnRowData execute(String sql) {
-
-        jdbcTemplate.setQueryTimeout(5);
-
         String upperCaseSql = sql.toUpperCase();
-        if(!upperCaseSql.contains("LIMIT")) {
+        if (!LIMIT_PATTERN.matcher(upperCaseSql).matches()) {
             sql = sql + " LIMIT 1000";
         }
 

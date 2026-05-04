@@ -3,6 +3,8 @@ package com.ai.main.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -19,15 +21,19 @@ public class JwtProvider {
     private final SecretKey secretKey;
     private final long accessExpiration;
     private final long refreshExpiration;
+    private final StringRedisTemplate redisTemplate;
+
 
     public JwtProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-expiration}") long accessExpiration,
-            @Value("${jwt.refresh-expiration}") long refreshExpiration
+            @Value("${jwt.refresh-expiration}") long refreshExpiration,
+            StringRedisTemplate redisTemplate
     ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
         this.accessExpiration = accessExpiration;
         this.refreshExpiration = refreshExpiration;
+        this.redisTemplate = redisTemplate;
     }
 
     public String generateAccessToken(String email, String role) {
@@ -65,6 +71,19 @@ public class JwtProvider {
         return parseClaims(token).getSubject();
     }
 
+    public Long getExpFromToken(Authentication authentication) {
+        String token = authentication.getCredentials().toString();
+        Claims claims = parseClaims(token);
+        Date exp = claims.getExpiration();
+
+        long now = System.currentTimeMillis();
+
+        long diffMillis = exp.getTime() - now;
+        long seconds = diffMillis / 1000;
+
+        return Math.max(0, seconds);
+    }
+
     public boolean isAccessToken(String token) {
         try {
             return TYPE_ACCESS.equals(parseClaims(token).get(CLAIM_TYPE, String.class));
@@ -84,7 +103,7 @@ public class JwtProvider {
     public boolean validateToken(String token) {
         try {
             parseClaims(token);
-            return true;
+            return !Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token));
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

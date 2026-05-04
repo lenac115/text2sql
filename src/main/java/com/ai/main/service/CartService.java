@@ -38,7 +38,6 @@ public class CartService {
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
-        // 이미 장바구니에 같은 상품이 있으면 수량 추가
         Optional<CartItem> existing = cartItemRepository.findByUser_EmailAndProduct_Id(email, request.productId());
         if (existing.isPresent()) {
             CartItem item = existing.get();

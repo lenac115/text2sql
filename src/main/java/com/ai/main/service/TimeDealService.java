@@ -97,7 +97,6 @@ public class TimeDealService {
         TimeDeal deal = timeDealRepository.findByIdWithLock(dealId)
                 .orElseThrow(() -> new EntityNotFoundException("딜을 찾을 수 없습니다."));
 
-        // 1인당 구매 제한 체크
         if (deal.getMaxPerUser() > 0) {
             int alreadyPurchased = ordersRepository.countUserDealPurchases(email, dealId);
             if (alreadyPurchased + request.quantity() > deal.getMaxPerUser()) {
@@ -106,10 +105,8 @@ public class TimeDealService {
             }
         }
 
-        // 딜 재고 차감 (내부에서 isActive + 수량 검증)
         deal.purchase(request.quantity());
 
-        // 실제 상품 재고도 차감
         Product product = productRepository.findByIdWithLock(deal.getProduct().getId())
                 .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
         product.decreaseStock(request.quantity());
@@ -124,7 +121,6 @@ public class TimeDealService {
             throw new IllegalArgumentException("배송지가 필요합니다. 기본 배송지를 등록하거나 구매 시 입력하세요.");
         }
 
-        // 주문 생성
         Orders order = Orders.builder()
                 .users(user)
                 .orderStatus(Orders.OrderStatus.PAYMENT_PENDING)
@@ -147,10 +143,7 @@ public class TimeDealService {
         return OrderResponse.from(order);
     }
 
-    /**
-     * 매분 만료된 딜의 활성 캐시를 비웁니다(TTL이 짧지만 즉시 반영용).
-     * 곧 시작/끝나는 딜의 알림 등을 추가하기 좋은 훅 지점.
-     */
+    /** TTL은 짧지만, 시작/종료 경계에서 즉시 반영을 보장하기 위해 강제 무효화. */
     @CacheEvict(value = RedisConfig.CACHE_ACTIVE_DEALS, allEntries = true)
     @Scheduled(fixedDelay = 60_000L)
     public void refreshDealCacheBoundaries() {

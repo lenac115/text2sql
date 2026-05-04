@@ -24,9 +24,8 @@ public class SqlGeneratorAgent {
     public String generateSql(String userQuestion) {
         String systemPrompt = buildSystemPrompt();
 
-        log.info("=== System Prompt ===\n{}", systemPrompt);
-        log.info("=== User Question === {}", userQuestion);
-
+        log.debug("System prompt: {}", systemPrompt);
+        log.info("User question: {}", userQuestion);
 
         String response = chatClient.prompt()
                 .system(systemPrompt)
@@ -34,8 +33,7 @@ public class SqlGeneratorAgent {
                 .call()
                 .content();
 
-        log.info("=== LLM Response === {}", response);
-
+        log.info("LLM response: {}", response);
 
         return extractSql(response);
     }
@@ -61,7 +59,7 @@ public class SqlGeneratorAgent {
                 - SELECT가 아니면 SELECT 문으로 변환하라.
                 """.formatted(userQuestion, previousSql, failureReason);
 
-        log.info("=== Retry Prompt === {}", retryUserPrompt);
+        log.info("Retry prompt: {}", retryUserPrompt);
 
         String response = chatClient.prompt()
                 .system(systemPrompt)
@@ -69,7 +67,7 @@ public class SqlGeneratorAgent {
                 .call()
                 .content();
 
-        log.info("=== LLM Retry Response === {}", response);
+        log.info("LLM retry response: {}", response);
 
         return extractSql(response);
     }
@@ -83,7 +81,7 @@ public class SqlGeneratorAgent {
                 .call()
                 .content();
 
-        return extractSql(response);
+        return response == null ? "" : response.trim();
     }
 
     private String buildSystemPrompt() {
@@ -130,13 +128,11 @@ public class SqlGeneratorAgent {
     private String extractSql(String response) {
         String sql = response.trim();
 
-        // 혹시 마크다운 코드 블록으로 감싸져 왔을 경우 제거
         if (sql.startsWith("```")) {
             sql = sql.replaceAll("```sql\\s*", "")
                     .replaceAll("```\\s*", "");
         }
 
-        // 세미 콜론 제거
         if (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1);
         }

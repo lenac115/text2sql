@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -23,11 +24,12 @@ public class DataInitializer implements CommandLineRunner {
     private final UsersRepository usersRepository;
     private final OrdersRepository ordersRepository;
     private final OrderItemsRepository orderItemsRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public void run(String... args) {
-        if (categoryRepository.count() > 0) return; // 이미 데이터 있으면 스킵
+        if (categoryRepository.count() > 0) return;
 
         initUsers();
         initProducts();
@@ -79,12 +81,21 @@ public class DataInitializer implements CommandLineRunner {
             Users user = Users.builder()
                     .createdAt(randomDateInPastYear(random))
                     .email("email" + i + "@gmail.com")
-                    .password("password" + i)
+                    .password(passwordEncoder.encode("password" + i))
                     .name("name" + i)
+                    .role(Users.Role.USER)
                     .build();
 
             usersBatch.add(user);
         }
+        Users admin = Users.builder()
+                .createdAt(randomDateInPastYear(random))
+                .email("lenac115@naver.com")
+                .password(passwordEncoder.encode("test1234"))
+                .name("admin")
+                .role(Users.Role.ADMIN)
+                .build();
+        usersBatch.add(admin);
         usersRepository.saveAll(usersBatch);
     }
 
@@ -101,7 +112,6 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 0; i < 50000; i++) {
             Users randomUser = allUsers.get(random.nextInt(allUsers.size()));
 
-            // 1. Orders 먼저 생성 (totalAmount는 0으로 시작)
             Orders order = Orders.builder()
                     .users(randomUser)
                     .orderStatus(randomStatus(random))
@@ -109,7 +119,6 @@ public class DataInitializer implements CommandLineRunner {
                     .totalAmount(0)
                     .build();
 
-            // 2. OrderItems 생성하면서 subtotal 합산
             int itemCount = random.nextInt(5) + 1;
             int totalAmount = 0;
 
@@ -130,9 +139,6 @@ public class DataInitializer implements CommandLineRunner {
                 order.addOrderItem(item);
                 itemBatch.add(item);
             }
-
-            // 3. totalAmount 재계산 (도메인 메서드 사용)
-            // → 근데 여기서 문제: orderItemsList가 비어있으니 calculateTotalAmount가 0으로 나옴
 
             orderBatch.add(order);
 

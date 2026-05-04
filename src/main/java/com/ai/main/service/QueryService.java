@@ -20,8 +20,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class QueryService {
 
-    private static final int MAX_RETRIES = 2;
-
     private final SqlExecutor sqlExecutor;
     private final SqlGeneratorAgent sqlGeneratorAgent;
     private final SqlValidator sqlValidator;
@@ -29,22 +27,19 @@ public class QueryService {
     private final ObjectMapper objectMapper;
 
     public QueryResponse processQuery(String question) {
-
-        // 1. 캐시 확인
         try {
             Object cached = redisTemplate.opsForValue().get(question);
             if (cached != null) return objectMapper.convertValue(cached, QueryResponse.class);
         } catch (Exception ex) {
-            log.warn("캐시 조회 실패, LLM 호출 진행 : {}" , ex.getMessage());
+            log.warn("캐시 조회 실패, LLM 호출 진행 : {}", ex.getMessage());
         }
 
-        // 2. SQL 생성 + 검증 (재시도 가능한 차단은 피드백 후 재생성)
         String sql = sqlGeneratorAgent.generateSql(question);
         SqlValidationResult result = sqlValidator.validate(sql);
 
-        for (int attempt = 1; attempt <= MAX_RETRIES && !result.allowed() && result.retryable(); attempt++) {
+        for (int attempt = 1; attempt <= 2 && !result.allowed() && result.retryable(); attempt++) {
             log.warn("SQL 검증 차단 — 재시도 {}/{}. code={}, sql={}",
-                    attempt, MAX_RETRIES, result.code(), sql);
+                    attempt, 2, result.code(), sql);
             sql = sqlGeneratorAgent.regenerateSql(question, sql, result.message());
             result = sqlValidator.validate(sql);
         }
@@ -55,13 +50,8 @@ public class QueryService {
                     new QueryError(result.code(), result.message(), result.detail()));
         }
 
-        // 3. 실행
         ColumnRowData data = sqlExecutor.execute(sql);
-
-        // 4. 응답 조립
         QueryResponse response = buildResponse(new QueryExecutionContext(question, sql, data, data.elapsed(), false));
-
-        // 5. 캐싱
         redisTemplate.opsForValue().set(question, response, Duration.ofMinutes(10));
 
         return response;
