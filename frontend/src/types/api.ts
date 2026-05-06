@@ -193,3 +193,73 @@ export interface QueryResponse {
   data: QueryResultData | null;
   error: QueryError | null;
 }
+
+export type DiscountType = 'FIXED' | 'PERCENTAGE';
+
+export interface Coupon {
+  id: number;
+  code: string;
+  name: string;
+  discountType: DiscountType;
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscountAmount: number;
+  totalQuantity: number;
+  issuedQuantity: number;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface AdminOrderSummary {
+  orderId: number;
+  userEmail: string;
+  userName: string;
+  totalAmount: number;
+  discountAmount: number;
+  finalAmount: number;
+  status: OrderStatus;
+  orderedAt: string;
+}
+
+export interface ProductCreateRequest {
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  price: number;
+  stock: number;
+  categoryId: number;
+}
+
+export interface ProductUpdateRequest {
+  name?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  price?: number | null;
+  stock?: number | null;
+  categoryId?: number | null;
+}
+
+export interface CategoryCreateRequest {
+  name: string;
+}
+
+export interface CouponCreateRequest {
+  code: string;
+  name: string;
+  discountType: DiscountType;
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscountAmount: number;
+  totalQuantity: number;
+  expiresAt: string;
+}
+
+export interface TimeDealCreateRequest {
+  title: string;
+  productId: number;
+  dealPrice: number;
+  totalStock: number;
+  maxPerUser: number;
+  startAt: string;
+  endAt: string;
+}

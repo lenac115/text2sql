@@ -1,5 +1,10 @@
 import { api } from './client';
-import type { AddressDto, Order, TimeDeal } from '@/types/api';
+import type {
+  AddressDto,
+  Order,
+  TimeDeal,
+  TimeDealCreateRequest,
+} from '@/types/api';
 
 export const timeDealsApi = {
   active: () =>
@@ -12,4 +17,7 @@ export const timeDealsApi = {
     api
       .post<Order>(`/v1/deals/${id}/purchase`, { quantity, shippingAddress })
       .then((r) => r.data),
+  listAll: () => api.get<TimeDeal[]>('/v1/deals/all').then((r) => r.data),
+  create: (req: TimeDealCreateRequest) =>
+    api.post<TimeDeal>('/v1/deals', req).then((r) => r.data),
 };

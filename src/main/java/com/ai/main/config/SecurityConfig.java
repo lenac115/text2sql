@@ -47,6 +47,11 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
+                        // ADMIN 전용 — 비회원 GET 허용 매처보다 먼저 와야 함 (/v1/deals/* 와 충돌)
+                        .requestMatchers(HttpMethod.GET, "/v1/deals/all").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/orders/all").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/orders/*/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/coupons").hasRole("ADMIN")
                         // 상품/카테고리/타임딜 조회는 비회원도 가능
                         .requestMatchers(HttpMethod.GET,
                                 "/v1/products/**",

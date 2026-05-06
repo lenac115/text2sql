@@ -1,5 +1,10 @@
 import { api } from './client';
-import type { Page, Product } from '@/types/api';
+import type {
+  Page,
+  Product,
+  ProductCreateRequest,
+  ProductUpdateRequest,
+} from '@/types/api';
 
 export interface ProductQuery {
   categoryId?: number | null;
@@ -20,4 +25,10 @@ export const productsApi = {
   },
   get: (id: number) =>
     api.get<Product>(`/v1/products/${id}`).then((r) => r.data),
+  create: (req: ProductCreateRequest) =>
+    api.post<Product>('/v1/products', req).then((r) => r.data),
+  update: (id: number, req: ProductUpdateRequest) =>
+    api.put<Product>(`/v1/products/${id}`, req).then((r) => r.data),
+  remove: (id: number) =>
+    api.delete<void>(`/v1/products/${id}`).then((r) => r.data),
 };

@@ -51,6 +51,13 @@ public class TimeDealController {
         return ResponseEntity.ok(timeDealService.createDeal(request));
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "[ADMIN] 전체 타임딜 목록 (ENDED 포함)")
+    public ResponseEntity<List<TimeDealResponse>> getAllDeals() {
+        return ResponseEntity.ok(timeDealService.getAllDeals());
+    }
+
     @PostMapping("/{id}/purchase")
     @Operation(summary = "타임딜 구매 (PESSIMISTIC_WRITE 락 + 1인 한도, 즉시 PAID 주문 생성)")
     public ResponseEntity<OrderResponse> purchaseDeal(

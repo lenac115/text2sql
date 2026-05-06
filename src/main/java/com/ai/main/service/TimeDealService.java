@@ -51,6 +51,13 @@ public class TimeDealService {
         return TimeDealResponse.from(deal);
     }
 
+    @Transactional(readOnly = true)
+    public List<TimeDealResponse> getAllDeals() {
+        return timeDealRepository.findAllForAdmin().stream()
+                .map(TimeDealResponse::from)
+                .toList();
+    }
+
     @CacheEvict(value = {RedisConfig.CACHE_ACTIVE_DEALS, RedisConfig.CACHE_UPCOMING_DEALS}, allEntries = true)
     @Transactional
     public TimeDealResponse createDeal(TimeDealCreateRequest request) {

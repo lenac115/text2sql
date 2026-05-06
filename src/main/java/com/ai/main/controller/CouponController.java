@@ -2,6 +2,7 @@ package com.ai.main.controller;
 
 import com.ai.main.dto.coupon.CouponCreateRequest;
 import com.ai.main.dto.coupon.CouponIssueRequest;
+import com.ai.main.dto.coupon.CouponResponse;
 import com.ai.main.dto.coupon.UserCouponResponse;
 import com.ai.main.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +30,13 @@ public class CouponController {
     public ResponseEntity<Void> createCoupon(@Valid @RequestBody CouponCreateRequest request) {
         couponService.createCoupon(request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "[ADMIN] 전체 쿠폰 정의 목록")
+    public ResponseEntity<List<CouponResponse>> getAllCoupons() {
+        return ResponseEntity.ok(couponService.getAllCoupons());
     }
 
     @PostMapping("/issue")

@@ -1,6 +1,8 @@
 package com.ai.main.repository;
 
 import com.ai.main.domain.Orders;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +28,9 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT COALESCE(SUM(oi.quantity), 0) FROM Orders o JOIN o.orderItemsList oi " +
            "WHERE o.users.email = :email AND o.timeDeal.id = :dealId AND o.orderStatus <> 'CANCELLED'")
     int countUserDealPurchases(@Param("email") String email, @Param("dealId") Long dealId);
+
+    @Query(value = "SELECT o FROM Orders o JOIN FETCH o.users " +
+                   "WHERE (:status IS NULL OR o.orderStatus = :status)",
+           countQuery = "SELECT COUNT(o) FROM Orders o WHERE (:status IS NULL OR o.orderStatus = :status)")
+    Page<Orders> findAllForAdmin(@Param("status") Orders.OrderStatus status, Pageable pageable);
 }

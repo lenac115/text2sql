@@ -1,5 +1,7 @@
 package com.ai.main.controller;
 
+import com.ai.main.domain.Orders;
+import com.ai.main.dto.order.AdminOrderSummary;
 import com.ai.main.dto.order.OrderCreateRequest;
 import com.ai.main.dto.order.OrderResponse;
 import com.ai.main.dto.order.UpdateOrderStatusRequest;
@@ -9,8 +11,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -62,6 +69,22 @@ public class OrderController {
             @PathVariable Long orderId,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
         return ResponseEntity.ok(orderService.updateStatus(orderId, request.status()));
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "[ADMIN] 전체 주문 목록 (status 필터, 페이지네이션)")
+    public ResponseEntity<Page<AdminOrderSummary>> getAllOrders(
+            @RequestParam(required = false) Orders.OrderStatus status,
+            @PageableDefault(size = 20, sort = "orderedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(orderService.getAllOrdersForAdmin(status, pageable));
+    }
+
+    @GetMapping("/{orderId}/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "[ADMIN] 주문 단건 조회 (소유자 무관)")
+    public ResponseEntity<OrderResponse> getOrderForAdmin(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.getOrderForAdmin(orderId));
     }
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

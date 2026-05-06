@@ -5,6 +5,8 @@ import com.ai.main.dto.order.*;
 import com.ai.main.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -144,6 +146,18 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getOrder(String email, Long orderId) {
         Orders order = ordersRepository.findByIdAndUserEmail(orderId, email)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+        return OrderResponse.from(order);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminOrderSummary> getAllOrdersForAdmin(Orders.OrderStatus status, Pageable pageable) {
+        return ordersRepository.findAllForAdmin(status, pageable).map(AdminOrderSummary::from);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderForAdmin(Long orderId) {
+        Orders order = ordersRepository.findByIdWithItems(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
         return OrderResponse.from(order);
     }

@@ -30,4 +30,7 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT td FROM TimeDeal td WHERE td.id = :id")
     Optional<TimeDeal> findByIdWithLock(@Param("id") Long id);
+
+    @Query("SELECT td FROM TimeDeal td JOIN FETCH td.product ORDER BY td.startAt DESC")
+    List<TimeDeal> findAllForAdmin();
 }

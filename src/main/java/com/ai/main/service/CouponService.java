@@ -5,6 +5,7 @@ import com.ai.main.domain.UserCoupon;
 import com.ai.main.domain.Users;
 import com.ai.main.dto.coupon.CouponCreateRequest;
 import com.ai.main.dto.coupon.CouponIssueRequest;
+import com.ai.main.dto.coupon.CouponResponse;
 import com.ai.main.dto.coupon.UserCouponResponse;
 import com.ai.main.repository.CouponRepository;
 import com.ai.main.repository.UserCouponRepository;
@@ -78,6 +79,13 @@ public class CouponService {
     public List<UserCouponResponse> getMyCoupons(String email) {
         return userCouponRepository.findByUserEmail(email).stream()
                 .map(UserCouponResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CouponResponse> getAllCoupons() {
+        return couponRepository.findAll().stream()
+                .map(CouponResponse::from)
                 .toList();
     }
 }

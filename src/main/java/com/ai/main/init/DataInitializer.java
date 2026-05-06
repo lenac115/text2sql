@@ -5,6 +5,7 @@ import com.ai.main.repository.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
@@ -29,14 +31,29 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (categoryRepository.count() > 0) return;
+        long categoryCount = categoryRepository.count();
+        log.info("[DataInitializer] run() 진입. category count = {}", categoryCount);
+        if (categoryCount > 0) {
+            log.info("[DataInitializer] 기존 데이터 존재 → 초기화 skip");
+            return;
+        }
 
-        initUsers();
-        initProducts();
-        initOrders();
+        long t0 = System.currentTimeMillis();
+        try {
+            initUsers();
+            initProducts();
+            initOrders();
+            log.info("[DataInitializer] 전체 초기화 완료. {}ms", System.currentTimeMillis() - t0);
+        } catch (RuntimeException e) {
+            log.error("[DataInitializer] 초기화 실패. {}ms 경과 후 예외 — 트랜잭션 롤백됨",
+                    System.currentTimeMillis() - t0, e);
+            throw e;
+        }
     }
 
     private void initProducts() {
+        long t0 = System.currentTimeMillis();
+        log.info("[DataInitializer] initProducts() 시작");
         Random random = new Random(42);
 
         List<Category> categoryBatch = new ArrayList<>();
@@ -50,6 +67,7 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         categoryRepository.saveAll(categoryBatch);
+        log.info("[DataInitializer] category {} 건 저장", categoryBatch.size());
 
         List<Category> categories = categoryRepository.findAll();
 
@@ -69,21 +87,31 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         productRepository.saveAll(productsBatch);
+        log.info("[DataInitializer] product {} 건 저장 완료 ({}ms)",
+                productsBatch.size(), System.currentTimeMillis() - t0);
     }
 
     private void initUsers() {
+        long t0 = System.currentTimeMillis();
+        log.info("[DataInitializer] initUsers() 시작");
         Random random = new Random(42);
+
+        // BCrypt는 해시당 100~300ms. 50K번 돌리면 수 시간 걸리므로 시드용 공용 해시 1회만 계산.
+        // 일반 유저 로그인 비밀번호는 모두 "password".
+        String sharedHash = passwordEncoder.encode("password");
+        log.info("[DataInitializer] 공용 비밀번호 해시 1회 계산 완료 ({}ms)", System.currentTimeMillis() - t0);
 
         List<Users> usersBatch = new ArrayList<>();
 
         for (int i = 0; i < 50000; i++) {
-
+            String name = "name" + i;
             Users user = Users.builder()
                     .createdAt(randomDateInPastYear(random))
                     .email("email" + i + "@gmail.com")
-                    .password(passwordEncoder.encode("password" + i))
-                    .name("name" + i)
+                    .password(sharedHash)
+                    .name(name)
                     .role(Users.Role.USER)
+                    .defaultAddress(dummyAddress(name))
                     .build();
 
             usersBatch.add(user);
@@ -94,20 +122,38 @@ public class DataInitializer implements CommandLineRunner {
                 .password(passwordEncoder.encode("test1234"))
                 .name("admin")
                 .role(Users.Role.ADMIN)
+                .defaultAddress(dummyAddress("admin"))
                 .build();
         usersBatch.add(admin);
         usersRepository.saveAll(usersBatch);
+        log.info("[DataInitializer] users {} 건 저장 완료 ({}ms)",
+                usersBatch.size(), System.currentTimeMillis() - t0);
+    }
+
+    private Address dummyAddress(String recipient) {
+        return Address.builder()
+                .recipient(recipient)
+                .phone("010-0000-0000")
+                .zipCode("00000")
+                .addressLine1("서울시 더미구 더미동 1-1")
+                .addressLine2("101호")
+                .build();
     }
 
 
     private void initOrders() {
+        long t0 = System.currentTimeMillis();
+        log.info("[DataInitializer] initOrders() 시작");
         Random random = new Random(42);
 
         List<Users> allUsers = usersRepository.findAll();
         List<Product> allProducts = productRepository.findAll();
+        log.info("[DataInitializer] orders 생성용 — users={} products={} 로드", allUsers.size(), allProducts.size());
 
         List<Orders> orderBatch = new ArrayList<>();
         List<OrderItems> itemBatch = new ArrayList<>();
+        int savedOrders = 0;
+        int savedItems = 0;
 
         for (int i = 0; i < 50000; i++) {
             Users randomUser = allUsers.get(random.nextInt(allUsers.size()));
@@ -117,6 +163,7 @@ public class DataInitializer implements CommandLineRunner {
                     .orderStatus(randomStatus(random))
                     .orderedAt(randomDateInPastYear(random))
                     .totalAmount(0)
+                    .shippingAddress(dummyAddress(randomUser.getName()))
                     .build();
 
             int itemCount = random.nextInt(5) + 1;
@@ -145,15 +192,23 @@ public class DataInitializer implements CommandLineRunner {
             if (orderBatch.size() == 1000) {
                 ordersRepository.saveAll(orderBatch);
                 orderItemsRepository.saveAll(itemBatch);
+                savedOrders += orderBatch.size();
+                savedItems += itemBatch.size();
                 orderBatch.clear();
                 itemBatch.clear();
+                log.info("[DataInitializer] orders 진행 — 누적 orders={} items={} ({}ms)",
+                        savedOrders, savedItems, System.currentTimeMillis() - t0);
             }
         }
 
         if (!orderBatch.isEmpty()) {
             ordersRepository.saveAll(orderBatch);
             orderItemsRepository.saveAll(itemBatch);
+            savedOrders += orderBatch.size();
+            savedItems += itemBatch.size();
         }
+        log.info("[DataInitializer] orders {} 건 / order_items {} 건 저장 완료 ({}ms)",
+                savedOrders, savedItems, System.currentTimeMillis() - t0);
     }
 
     private Orders.@NotNull OrderStatus randomStatus(Random random) {
