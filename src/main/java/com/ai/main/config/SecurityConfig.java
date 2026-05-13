@@ -5,14 +5,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @EnableWebSecurity
@@ -66,7 +71,31 @@ public class SecurityConfig {
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    private AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            String reason = (String) request.getAttribute(com.ai.main.security.JwtAuthFilter.AUTH_ERROR_ATTR);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            String message;
+            if (com.ai.main.security.JwtAuthFilter.ERR_EXPIRED.equals(reason)) {
+                message = "토큰이 만료되었습니다.";
+            } else if (com.ai.main.security.JwtAuthFilter.ERR_REVOKED.equals(reason)) {
+                message = "로그아웃된 토큰입니다.";
+            } else if (com.ai.main.security.JwtAuthFilter.ERR_INVALID.equals(reason)) {
+                message = "유효하지 않은 토큰입니다.";
+            } else {
+                message = "인증이 필요합니다.";
+            }
+            if (reason != null) {
+                response.setHeader("X-Auth-Error", reason);
+            }
+            response.getWriter().write("{\"message\":\"" + message + "\"}");
+        };
     }
 }

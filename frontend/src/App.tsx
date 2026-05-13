@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
@@ -14,7 +14,9 @@ import DealsPage from './pages/DealsPage';
 import DealDetailPage from './pages/DealDetailPage';
 import CouponsPage from './pages/CouponsPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminLayout from './pages/AdminLayout';
 import AdminQueryPage from './pages/AdminQueryPage';
+import AdminTimeDealPage from './pages/AdminTimeDealPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
@@ -39,7 +41,11 @@ export default function App() {
         </Route>
 
         <Route element={<ProtectedRoute adminOnly />}>
-          <Route path="/admin/query" element={<AdminQueryPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="query" replace />} />
+            <Route path="query" element={<AdminQueryPage />} />
+            <Route path="timedeals" element={<AdminTimeDealPage />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

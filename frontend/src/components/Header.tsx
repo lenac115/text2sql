@@ -54,7 +54,7 @@ export default function Header() {
             </>
           )}
           {role === 'ADMIN' && (
-            <NavLink to="/admin/query" className={navItem}>
+            <NavLink to="/admin" className={navItem}>
               관리자
             </NavLink>
           )}

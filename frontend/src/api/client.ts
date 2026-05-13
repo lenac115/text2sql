@@ -41,22 +41,27 @@ api.interceptors.response.use(
       | undefined;
     const status = error.response?.status;
     const url = original?.url ?? '';
+    const authError = (error.response?.headers?.['x-auth-error'] ?? '')
+      .toString()
+      .toUpperCase();
 
-    if (
-      status === 401 &&
-      original &&
-      !original._retry &&
-      !url.includes('/v1/auth/')
-    ) {
-      original._retry = true;
-      if (!refreshing) refreshing = refreshAccessToken();
-      const newToken = await refreshing;
-      refreshing = null;
-      if (newToken) {
-        original.headers = original.headers ?? {};
-        (original.headers as Record<string, string>).Authorization =
-          `Bearer ${newToken}`;
-        return api.request(original);
+    if (status === 401 && original && !url.includes('/v1/auth/')) {
+      // EXPIRED: 자동 refresh 시도. 헤더가 없는 경우(기존 동작 호환)도 시도.
+      if ((authError === 'EXPIRED' || authError === '') && !original._retry) {
+        original._retry = true;
+        if (!refreshing) refreshing = refreshAccessToken();
+        const newToken = await refreshing;
+        refreshing = null;
+        if (newToken) {
+          original.headers = original.headers ?? {};
+          (original.headers as Record<string, string>).Authorization =
+            `Bearer ${newToken}`;
+          return api.request(original);
+        }
+      }
+      // INVALID / REVOKED / refresh 실패: 즉시 세션 클리어
+      if (authError === 'INVALID' || authError === 'REVOKED') {
+        useAuthStore.getState().clear();
       }
     }
     return Promise.reject(error);
